@@ -16,12 +16,12 @@ const resolvers = {
   },
 
   Mutation: {
-    saveBook: async (parent, { user, body }) => {
-
+    saveBook: async (parent, args ) => {
+      console.log(args)
       return await User.findOneAndUpdate(
           { _id: user._id },
           { $addToSet: { savedBooks: body }}
-       );
+       )
     },
     removeBook: async (parent, { bookId }) => {
       return await Book.findOneAndDelete({ _id: bookId });
@@ -46,14 +46,7 @@ const resolvers = {
   
         return { token, user };
       },
-    // removeComment: async (parent, { thoughtId, commentId }) => {
-    //   return Thought.findOneAndUpdate(
-    //     { _id: thoughtId },
-    //     { $pull: { comments: { _id: commentId } } },
-    //     { new: true }
-    //   );
-    // },
-  },
+  }
 };
 
 module.exports = resolvers;
