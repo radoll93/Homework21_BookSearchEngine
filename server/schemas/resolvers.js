@@ -1,18 +1,23 @@
-const { Book, User } = require('../models');
+const { User } = require('../models');
 const { signToken } = require('../utils/auth');
 const { AuthenticationError } = require('apollo-server-express');
 
 const resolvers = {
   Query: {
-    books: async () => {
-      return Book.find().sort({ createdAt: -1 });
+    users: async () => {
+      return User.find().populate('books');
     },
-    book: async (parent, { bookId }) => {
-      return Book.findOne({ _id: bookId });
-    },
-    user: async (parent, { _id }) => {
+    user: async (parent, args ) => {
+      const { _id, username } = args;
       return User.findOne({ _id }).populate('books')
-    }
+    },
+    me: async (parent, context) => {
+      if (context.user) {
+        return User.findOne({ _id: context.user._id }).populate('books');
+      }
+      throw new AuthenticationError('You need to be logged in!');
+    },
+
   },
 
   Mutation: {
@@ -24,10 +29,10 @@ const resolvers = {
        )
     },
     removeBook: async (parent, { bookId }) => {
-      return await Book.findOneAndDelete({ _id: bookId });
+      return await User.findOneAndDelete({ _id: bookId });
     },
     addUser: async (parent, { username, email, password }) => {
-        return await Book.create({ username, email, password });
+        return await User.create({ username, email, password });
     },
     login: async (parent, { email, password }) => {
         const user = await User.findOne({ email });
