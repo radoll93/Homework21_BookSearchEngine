@@ -21,10 +21,10 @@ const resolvers = {
   },
 
   Mutation: {
-    saveBook: async (parent, {_id, bookId, authors, description, title }) => {
+    saveBook: async (parent, {token, bookId, authors, description, title }) => {
       
       return await User.findOneAndUpdate(
-          { _id: _id },
+          { _id: token },
           { $addToSet: { savedBooks: {bookId, authors, description, title} }},
           { new: true, runValidators: true }
        )
