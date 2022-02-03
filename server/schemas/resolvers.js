@@ -11,7 +11,7 @@ const resolvers = {
       const { _id, username } = args;
       return User.findOne({ _id }).populate('books')
     },
-    me: async (parent, context) => {
+    me: async (parent, args, context) => {
       if (context.user) {
         return User.findOne({ _id: context.user._id }).populate('books');
       }
@@ -21,18 +21,26 @@ const resolvers = {
   },
 
   Mutation: {
-    saveBook: async (parent, args ) => {
-      console.log(args)
+    saveBook: async (parent, {_id, bookId, authors, description, title }) => {
+      
       return await User.findOneAndUpdate(
-          { _id: user._id },
-          { $addToSet: { savedBooks: body }}
+          { _id: _id },
+          { $addToSet: { savedBooks: {bookId, authors, description, title} }},
+          { new: true, runValidators: true }
        )
     },
-    removeBook: async (parent, { bookId }) => {
-      return await User.findOneAndDelete({ _id: bookId });
+    removeBook: async (parent, { _id, bookId }) => {
+      return await User.findOneAndDelete(
+        { _id: _id },
+        { $pull: { savedBooks: { bookId: bookId } } },
+        { new: true }
+        );
     },
     addUser: async (parent, { username, email, password }) => {
-        return await User.create({ username, email, password });
+        const user = await User.create({ username, email, password });
+        const token = signToken(user);
+
+        return {token, user}
     },
     login: async (parent, { email, password }) => {
         const user = await User.findOne({ email });
