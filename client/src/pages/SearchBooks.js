@@ -63,14 +63,16 @@ const SearchBooks = () => {
     console.log(bookToSave)
     // get token
     const token = Auth.loggedIn() ? Auth.getToken() : null;
-    console.log(token)
+    
     if (!token) {
       return false;
     }
 
     try {
       const { data } = await saveBook({
-        variables: { token, ...bookToSave }
+        variables: {
+          ...bookToSave
+        }
       })
 
       console.log(data);

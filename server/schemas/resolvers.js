@@ -12,6 +12,7 @@ const resolvers = {
       return User.findOne({ _id }).populate('books')
     },
     me: async (parent, args, context) => {
+      console.log(context.user)
       if (context.user) {
         return User.findOne({ _id: context.user._id }).populate('books');
       }
@@ -21,17 +22,20 @@ const resolvers = {
   },
 
   Mutation: {
-    saveBook: async (parent, {token, bookId, authors, description, title }) => {
-      
-      return await User.findOneAndUpdate(
-          { _id: token },
-          { $addToSet: { savedBooks: {bookId, authors, description, title} }},
+    saveBook: async (parent, args, context ) => {
+      console.log(context.user)
+      if (context.user) {
+   
+      return User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $addToSet: { savedBooks: args }},
           { new: true, runValidators: true }
        )
+      }
     },
-    removeBook: async (parent, { _id, bookId }) => {
+    removeBook: async (parent, { bookId }, context ) => {
       return await User.findOneAndDelete(
-        { _id: _id },
+        { _id: context.user._id },
         { $pull: { savedBooks: { bookId: bookId } } },
         { new: true }
         );
