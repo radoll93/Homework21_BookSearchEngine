@@ -12,7 +12,6 @@ const resolvers = {
       return User.findOne({ _id }).populate('books')
     },
     me: async (parent, args, context) => {
-      console.log(`query-me start: ${context.user}`)
       if (context.user) {
         return User.findOne({ _id: context.user._id }).populate('books');
       }
@@ -23,7 +22,6 @@ const resolvers = {
 
   Mutation: {
     saveBook: async (parent, args, context ) => {
-      console.log(context.user)
       if (context.user) {
    
       return User.findOneAndUpdate(
@@ -33,8 +31,9 @@ const resolvers = {
        )
       }
     },
-    removeBook: async (parent, { bookId }, context ) => {
-      return await User.findOneAndDelete(
+    removeBook: async (parent, {bookId}, context ) => {
+      console.log(bookId)
+      return await User.findOneAndUpdate(
         { _id: context.user._id },
         { $pull: { savedBooks: { bookId: bookId } } },
         { new: true }

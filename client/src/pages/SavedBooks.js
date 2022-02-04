@@ -10,7 +10,8 @@ import { QUERY_ME } from '../utils/quries'
 
 const SavedBooks = () => {
   const { loading, data } = useQuery(QUERY_ME);
-  const [removeBook] = useMutation(REMOVE_BOOK)
+  const [removeBook] = useMutation(REMOVE_BOOK);
+  
 
 
   const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -19,14 +20,14 @@ const SavedBooks = () => {
     return false;
   }
 
-  const userData = data?.me
-
-  console.log(userData)
+  let userData = data?.me
  
   // if data isn't here yet, say so
   if (loading) {
     return <h2>LOADING...</h2>;
   }
+
+  console.log(userData);
 
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
@@ -39,12 +40,16 @@ const SavedBooks = () => {
 
     try {
       const { data } = await removeBook({
-        variables: {...userData}
+        variables: { bookId }
       })
 
       console.log(data)
-
+      const updatedUser = data?.removeBook;
       // setUserData(updatedUser);
+      userData = updatedUser;
+
+      document.relocation();
+
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
